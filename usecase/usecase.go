@@ -1,23 +1,26 @@
 package usecase
 
 import (
-	"golang.org/x/oauth2"
-
-	"github.com/quocbang/oauth2/usecase/auth/google"
-	"github.com/quocbang/oauth2/usecase/product"
+	"github.com/quocbang/oauth2/usecase/auth"
 	"github.com/quocbang/oauth2/usecase/service"
 )
 
 type UseCase struct {
-	Oauth2  service.Auth
-	Product service.Product
+	oauth2  *auth.Auth
+	product service.Product
 }
 
-func NewUsecase(googleEndPoint oauth2.Endpoint) UseCase {
-	return UseCase{
-		Oauth2: service.Auth{
-			Google: google.NewGoogleOauth2(googleEndPoint),
-		},
-		Product: product.NewProductService(),
+func NewUsecase(oauth *auth.Auth, product service.Product) *UseCase {
+	return &UseCase{
+		oauth2:  oauth,
+		product: product,
 	}
+}
+
+func (u *UseCase) Auth() *auth.Auth {
+	return u.oauth2
+}
+
+func (u *UseCase) Product() service.Product {
+	return u.product
 }
