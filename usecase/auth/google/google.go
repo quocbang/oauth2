@@ -3,7 +3,7 @@ package google
 import (
 	"golang.org/x/oauth2"
 
-	"github.com/quocbang/oauth2/auth"
+	"github.com/quocbang/oauth2/usecase/auth"
 )
 
 type oauth2Service struct {

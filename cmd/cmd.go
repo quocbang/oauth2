@@ -3,22 +3,37 @@ package cmd
 import (
 	"log"
 
-	"github.com/quocbang/oauth2/auth/authservice"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 
-	"golang.org/x/oauth2"
+	"github.com/quocbang/oauth2/config"
+	myMiddleware "github.com/quocbang/oauth2/delivery/middleware"
 )
 
 func Run() {
-	gEndPoint := oauth2.Endpoint{
-		AuthURL:       "https://accounts.google.com/o/oauth2/auth",
-		TokenURL:      "https://oauth2.googleapis.com/token",
-		DeviceAuthURL: "https://oauth2.googleapis.com/device/code",
-	}
+	// new API
+	e := echo.New()
 
-	auth2 := authservice.NewAuth(gEndPoint)
-	// login with auth2
-	err := auth2.Google.Login()
-	if err != nil {
-		log.Fatalln(err)
-	}
+	// get config
+	cfg := config.GetConfig()
+
+	// init logger
+	myMiddleware.InitLogger(cfg.DevMode)
+
+	// logging + middleware
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+
+	// https://www.googleapis.com/auth/userinfo.email
+	// https://www.googleapis.com/auth/userinfo.profile
+	// https://api.github.com/user
+
+	// 	- allow CORDS
+
+	// get config
+
+	// register router
+
+	// serve
+	log.Fatal(e.Start(":3000"))
 }
