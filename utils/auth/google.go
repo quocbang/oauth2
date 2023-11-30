@@ -34,7 +34,7 @@ func GetGoogleOauthToken(code string, config oauth2.Config) (*GoogleOauth, error
 	values.Add("redirect_uri", config.RedirectURL)
 	query := values.Encode()
 
-	req, err := http.NewRequest(http.MethodPost, config.Endpoint.AuthURL, bytes.NewBufferString(query))
+	req, err := http.NewRequest(http.MethodPost, config.Endpoint.TokenURL, bytes.NewBufferString(query))
 	if err != nil {
 		return nil, err // TODO: should custom err
 	}
@@ -55,8 +55,7 @@ func GetGoogleOauthToken(code string, config oauth2.Config) (*GoogleOauth, error
 	}
 
 	googleResponse := &GoogleOauth{}
-	var a interface{}
-	if err := json.NewDecoder(resp.Body).Decode(&a); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&googleResponse); err != nil {
 		return nil, err // TODO: should custom err
 	}
 
@@ -73,22 +72,17 @@ type GoogleUserReply struct {
 	Locale        string `json:"locale"`
 }
 
-func (t *GoogleOauth) GetGoogleUserInfo() (*GoogleUserReply, error) {
-	if t.TokenType != Bearer {
+func (g *GoogleOauth) GetGoogleUserInfo() (*GoogleUserReply, error) {
+	if g.TokenType != Bearer {
 		return nil, fmt.Errorf("expected is Bearer type")
 	}
 
-	values := url.Values{}
-	values.Add("alt", "json")
-	values.Add("access_token", t.AccessToken)
-	query := values.Encode()
-
-	url := ""
-	req, err := http.NewRequest(http.MethodGet, url, bytes.NewBufferString(query))
+	url := fmt.Sprintf("%s?access_token=%s&alt=json", "https://www.googleapis.com/oauth2/v1/userinfo", g.AccessToken)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new get user info request, error: %v", err)
 	}
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", t.IDToken))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", g.IDToken))
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

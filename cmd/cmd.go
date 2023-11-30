@@ -49,6 +49,8 @@ func Run() {
 				Scopes:       []string{"https://api.github.com/user"},
 			},
 		},
+		Database:     cfg.Database,
+		InternalAuth: cfg.InternalAuth,
 	}
 	h.RegisterHTTPHandler(e)
 
