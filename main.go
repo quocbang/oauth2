@@ -1,7 +1,9 @@
 package main
 
-import "log"
+import (
+	"github.com/quocbang/oauth2/cmd"
+)
 
 func main() {
-	log.Println("main")
+	cmd.Run()
 }

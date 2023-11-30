@@ -3,14 +3,14 @@ package google
 import (
 	"golang.org/x/oauth2"
 
-	"github.com/quocbang/oauth2/auth"
+	"github.com/quocbang/oauth2/usecase/service"
 )
 
 type oauth2Service struct {
 	endPoint oauth2.Endpoint
 }
 
-func NewGoogleOauth2(endPoint oauth2.Endpoint) auth.IOAuth2 {
+func NewGoogleOauth2(endPoint oauth2.Endpoint) service.IOAuth2 {
 	return &oauth2Service{
 		endPoint: endPoint,
 	}
