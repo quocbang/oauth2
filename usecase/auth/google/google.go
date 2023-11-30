@@ -77,8 +77,9 @@ func (s *oauth2Service) Oauth2Login(ctx context.Context, code string) (*presente
 			if err != nil {
 				return nil, err
 			}
+		} else {
+			return nil, err
 		}
-		return nil, err
 	}
 
 	// generate new our token

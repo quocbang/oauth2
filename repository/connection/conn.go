@@ -2,10 +2,12 @@ package connection
 
 import (
 	"fmt"
+	"log"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
+	migrations "github.com/quocbang/oauth2/migration"
 	"github.com/quocbang/oauth2/repository"
 )
 
@@ -63,12 +65,17 @@ func NewDatabase(p Postgres, schema string) (*gorm.DB, error) {
 	return db, nil
 }
 
-func NewRepository(p Postgres, opts ...Option) (repository.Repositories, error) {
+func NewRepository(p Postgres, migrationPath string, opts ...Option) (repository.Repositories, error) {
 	options := parseOptions(opts...)
 
 	db, err := NewDatabase(p, options.schema)
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect database, error: %v", err)
+		return nil, err
+	}
+
+	// migrate
+	if err := migrations.Up(db, migrationPath, p.Name); err != nil {
+		log.Fatalf("failed to up migrate, error: %v", err)
 	}
 
 	return &dbConnection{

@@ -14,7 +14,7 @@ type Session struct {
 	ClientIP             string    `json:"client_id"`
 	ClientAgent          string    `json:"client_agent"`
 	Expires              time.Time `json:"expires"`
-	CreatedAt            string    `json:"created_at"`
+	CreatedAt            time.Time `json:"created_at"`
 	CreatedBy            uuid.UUID `json:"created_by"`
 }
 
@@ -22,7 +22,7 @@ func (Session) TableName() string {
 	return "session"
 }
 
-func (s *Session) BeforeCreate(*gorm.Tx) error {
+func (s *Session) BeforeCreate(*gorm.DB) error {
 	s.ID = uuid.New()
 	return nil
 }

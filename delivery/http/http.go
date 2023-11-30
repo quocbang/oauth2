@@ -22,6 +22,7 @@ type HTTP struct {
 	Database     config.DatabaseGroup
 	Auth         AuthConfig
 	InternalAuth config.InternalAuthInfo
+	MigratePath  string
 	// add more here
 }
 
@@ -36,7 +37,7 @@ func (h HTTP) RegisterHTTPHandler(e *echo.Echo) {
 		Password: h.Database.Postgres.Password,
 	}
 	options := []connection.Option{connection.WithSchema(h.Database.Postgres.Schema)}
-	repo, err := connection.NewRepository(p, options...)
+	repo, err := connection.NewRepository(p, h.MigratePath, options...)
 	if err != nil {
 		log.Fatalf("failed to init repository layer , error: %v", err)
 	}

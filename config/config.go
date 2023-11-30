@@ -45,6 +45,7 @@ type Config struct {
 	Oauth2       Oauth2           `yaml:"oauth2"`
 	InternalAuth InternalAuthInfo `yaml:"internal_auth"`
 	Database     DatabaseGroup    `yaml:"database"`
+	MigratePath  string           `yaml:"migrate_path"`
 }
 
 func init() {

@@ -51,6 +51,7 @@ func Run() {
 		},
 		Database:     cfg.Database,
 		InternalAuth: cfg.InternalAuth,
+		MigratePath:  cfg.MigratePath,
 	}
 	h.RegisterHTTPHandler(e)
 

@@ -23,7 +23,7 @@ func (Account) TableName() string {
 	return "account"
 }
 
-func (a *Account) BeforeCreate(*gorm.Tx) error {
+func (a *Account) BeforeCreate(*gorm.DB) error {
 	a.ID = uuid.New()
 	return nil
 }
