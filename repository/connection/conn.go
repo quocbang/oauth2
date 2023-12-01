@@ -9,6 +9,7 @@ import (
 
 	migrations "github.com/quocbang/oauth2/migration"
 	"github.com/quocbang/oauth2/repository"
+	"github.com/quocbang/oauth2/repository/logging"
 )
 
 type dbConnection struct {
@@ -56,7 +57,7 @@ func NewDatabase(p Postgres, schema string) (*gorm.DB, error) {
 		dsnStr = fmt.Sprintf("%s search_path=%s", dsnStr, schema)
 	}
 	db, err := gorm.Open(postgres.Open(dsnStr), &gorm.Config{
-		// TODO: should embed logger
+		Logger: logging.NewGormLogger(),
 	})
 	if err != nil {
 		return nil, err
