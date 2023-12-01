@@ -8,6 +8,7 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.16.2
 	github.com/google/uuid v1.4.0
 	github.com/labstack/echo/v4 v4.11.3
+	github.com/rs/xid v1.5.0
 	go.uber.org/zap v1.25.0
 	golang.org/x/oauth2 v0.15.0
 	google.golang.org/protobuf v1.31.0
