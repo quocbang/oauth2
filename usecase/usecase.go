@@ -2,25 +2,18 @@ package usecase
 
 import (
 	"github.com/quocbang/oauth2/usecase/auth"
-	"github.com/quocbang/oauth2/usecase/service"
 )
 
 type UseCase struct {
-	oauth2  *auth.Auth
-	product service.Product
+	oauth2 *auth.Auth
 }
 
-func NewUsecase(oauth *auth.Auth, product service.Product) *UseCase {
+func NewUsecase(oauth *auth.Auth) *UseCase {
 	return &UseCase{
-		oauth2:  oauth,
-		product: product,
+		oauth2: oauth,
 	}
 }
 
 func (u *UseCase) Auth() *auth.Auth {
 	return u.oauth2
-}
-
-func (u *UseCase) Product() service.Product {
-	return u.product
 }

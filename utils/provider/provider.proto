@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+option go_package = "github.com/quocbang/oauth2/utils/provider";
+
+enum Provider {
+  UNSPECIFIED = 0;
+  GOOGLE = 1;
+  GITHUB = 2;
+  FACEBOOK = 3;
+  GITLAB = 4;
+}

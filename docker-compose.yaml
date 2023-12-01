@@ -1,0 +1,13 @@
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:latest
+    ports:
+      - $POSTGRES_PORT:5432
+    environment:
+      POSTGRES_DB: $POSTGRES_DATABASE
+      POSTGRES_SCHEMAS: $POSTGRES_SCHEMAS
+      POSTGRES_USER: $POSTGRES_USERNAME
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+    volumes:
+      - ./tmp/postgres/:/var/lib/postgresql/data

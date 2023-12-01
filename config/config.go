@@ -19,14 +19,33 @@ type Oauth2 struct {
 	Github Oauth2Config `yaml:"github"`
 }
 
-type ConfigInFile struct {
+type PostgresConfig struct {
+	Name     string `yaml:"name"`
+	Address  string `yaml:"address"`
+	Port     int    `yaml:"port"`
+	UserName string `yaml:"username"`
+	Password string `yaml:"password"`
+	Schema   string `yaml:"schema"`
+}
+
+type DatabaseGroup struct {
+	Postgres PostgresConfig `yaml:"postgres"`
+}
+
+type InternalAuthInfo struct {
+	SecretKey            string `yaml:"secret_key"`
+	AccessTokenDuration  string `yaml:"access_token_duration"`
+	RefreshTokenDuration string `yaml:"refresh_token_duration"`
 }
 
 var c Config
 
 type Config struct {
-	DevMode bool   `yaml:"dev_mode"`
-	Oauth2  Oauth2 `yaml:"oauth2"`
+	DevMode      bool             `yaml:"dev_mode"`
+	Oauth2       Oauth2           `yaml:"oauth2"`
+	InternalAuth InternalAuthInfo `yaml:"internal_auth"`
+	Database     DatabaseGroup    `yaml:"database"`
+	MigratePath  string           `yaml:"migrate_path"`
 }
 
 func init() {
