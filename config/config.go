@@ -34,8 +34,8 @@ type DatabaseGroup struct {
 
 type InternalAuthInfo struct {
 	SecretKey            string `yaml:"secret_key"`
-	AccessTokenDuration  int    `yaml:"access_token_duration"`
-	RefreshTokenDuration int    `yaml:"refresh_token_duration"`
+	AccessTokenDuration  string `yaml:"access_token_duration"`
+	RefreshTokenDuration string `yaml:"refresh_token_duration"`
 }
 
 var c Config

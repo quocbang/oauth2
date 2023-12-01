@@ -35,13 +35,21 @@ type JWT struct {
 	RefreshTokenDuration time.Duration
 }
 
-func (j JWT) GenerateToken() (accessToken string, refreshToken string, jwtCustom *JWTClaimCustom, err error) {
+type GenerateTokenReply struct {
+	AccessToken       string
+	RefreshToken      string
+	AccessTokenClaim  JWTClaimCustom
+	RefreshTokenClaim JWTClaimCustom
+}
+
+func (j JWT) GenerateToken() (*GenerateTokenReply, error) {
 	if j.SecretKey == "" {
-		return "", "", nil, fmt.Errorf("missing secret key")
+		return nil, fmt.Errorf("missing secret key")
 	}
 
+	generateTokenReply := &GenerateTokenReply{}
 	// access token
-	claims := &JWTClaimCustom{
+	claims := JWTClaimCustom{
 		SessionID: uuid.New(),
 		User: UserInfo{
 			ID:       j.User.ID,
@@ -57,10 +65,12 @@ func (j JWT) GenerateToken() (accessToken string, refreshToken string, jwtCustom
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	accessToken, err = token.SignedString([]byte(j.SecretKey))
+	accessToken, err := token.SignedString([]byte(j.SecretKey))
 	if err != nil {
-		return "", "", nil, err
+		return nil, err
 	}
+	generateTokenReply.AccessToken = accessToken
+	generateTokenReply.AccessTokenClaim = claims
 
 	// refresh token
 	claims.RegisteredClaims = jwt.RegisteredClaims{
@@ -69,12 +79,14 @@ func (j JWT) GenerateToken() (accessToken string, refreshToken string, jwtCustom
 		},
 	}
 	token = jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	refreshToken, err = token.SignedString([]byte(j.SecretKey))
+	refreshToken, err := token.SignedString([]byte(j.SecretKey))
 	if err != nil {
-		return "", "", nil, err
+		return nil, err
 	}
+	generateTokenReply.RefreshToken = refreshToken
+	generateTokenReply.RefreshTokenClaim = claims
 
-	return accessToken, refreshToken, claims, nil
+	return generateTokenReply, nil
 }
 
 func (j JWT) VerifyToken(token string) (*JWTClaimCustom, error) {

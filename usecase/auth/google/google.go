@@ -5,11 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"time"
 
 	"golang.org/x/oauth2"
 	"gorm.io/gorm"
 
 	"github.com/quocbang/oauth2/config"
+	"github.com/quocbang/oauth2/delivery/middleware"
 	"github.com/quocbang/oauth2/presenter"
 	"github.com/quocbang/oauth2/repository"
 	"github.com/quocbang/oauth2/repository/orm/models"
@@ -83,6 +85,14 @@ func (s *oauth2Service) Oauth2Login(ctx context.Context, code string) (*presente
 	}
 
 	// generate new our token
+	accessTokenDuration, err := time.ParseDuration(s.internalAuth.AccessTokenDuration)
+	if err != nil {
+		return nil, err // TODO: should return with custom error
+	}
+	refreshTokenDuration, err := time.ParseDuration(s.internalAuth.RefreshTokenDuration)
+	if err != nil {
+		return nil, err
+	}
 	jwt := &token.JWT{
 		SecretKey: s.internalAuth.SecretKey,
 		User: token.UserInfo{
@@ -92,19 +102,23 @@ func (s *oauth2Service) Oauth2Login(ctx context.Context, code string) (*presente
 			Email:    account.Email,
 			Image:    account.Image,
 		},
+		AccessTokenDuration:  accessTokenDuration,
+		RefreshTokenDuration: refreshTokenDuration,
 	}
-	accessToken, refreshToken, claims, err := jwt.GenerateToken()
+	generateTokenReply, err := jwt.GenerateToken()
 	if err != nil {
 		return nil, err
 	}
 
 	// create a session
-	// clientIP :=
 	session := &models.Session{
-		ID:                   claims.User.ID,
-		RefreshToken:         refreshToken,
-		ProviderRefreshToken: googleAuth.AccessToken, // TODO: should fix orr find refresh token
-		// ClientIP: ,
+		ID:                   generateTokenReply.AccessTokenClaim.User.ID,
+		RefreshToken:         generateTokenReply.RefreshToken,
+		ProviderRefreshToken: googleAuth.IDToken, // TODO: should fix orr find refresh token
+		ClientIP:             middleware.GetClientIP(ctx),
+		ClientAgent:          middleware.GetClientAgent(ctx),
+		Expires:              generateTokenReply.RefreshTokenClaim.ExpiresAt.Time,
+		CreatedBy:            account.ID,
 	}
 	if err := s.repo.Session().Create(ctx, session); err != nil {
 		return nil, err
@@ -112,8 +126,8 @@ func (s *oauth2Service) Oauth2Login(ctx context.Context, code string) (*presente
 
 	// response our server token
 	return &presenter.Oauth2LoginResponse{
-		SessionID:    claims.SessionID,
-		AccessToken:  accessToken,
-		TokenExpires: claims.ExpiresAt.Time,
+		SessionID:    generateTokenReply.AccessTokenClaim.SessionID,
+		AccessToken:  generateTokenReply.AccessToken,
+		TokenExpires: generateTokenReply.AccessTokenClaim.ExpiresAt.Time,
 	}, nil
 }

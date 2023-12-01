@@ -4,13 +4,14 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/quocbang/oauth2/delivery/middleware"
 	"github.com/quocbang/oauth2/payload"
 	"github.com/quocbang/oauth2/presenter"
 )
 
 func (h *Handlers) Callback(c echo.Context) error {
 	var (
-		ctx  = c.Request().Context()
+		ctx  = middleware.ToBuiltInContext(c)
 		req  = payload.CallbackRequest{}
 		resp *presenter.Oauth2LoginResponse
 	)
