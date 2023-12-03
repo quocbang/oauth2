@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/quocbang/oauth2/delivery"
 	"github.com/quocbang/oauth2/delivery/middleware"
 	"github.com/quocbang/oauth2/payload"
 	"github.com/quocbang/oauth2/presenter"
@@ -29,5 +30,5 @@ func (h *Handlers) Callback(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err) // TODO: should be echo error response
 	}
 
-	return c.JSON(http.StatusOK, resp)
+	return delivery.Response.Success(c, resp)
 }
