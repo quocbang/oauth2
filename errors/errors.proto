@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+option go_package = "github.com/quocbang/oauth2/errors";
+
+enum Code {
+  ERROR_UNSPECIFIED = 0;
+  ERROR_FAILED_TO_PARSE_DURATION = 1;
+  ERROR_FAILED_TO_GENERATE_TOKEN = 2;
+
+  // Auth Service
+  ERROR_GET_OAUTH2_TOKEN = 21001;
+  ERROR_GET_USER_INFO = 21002;
+  ERROR_FAILED_TO_GET_OAUTH2_TOKEN = 21003;
+  ERROR_FAILED_TO_GET_OAUTH2_USER_INFO = 21004;
+  ERROR_BAD_REQUEST = 21005;
+
+  // Account Service
+  ERROR_GET_ACCOUNT = 31001;
+  ERROR_CREATE_ACCOUNT = 31002;
+
+  // Session Service
+  ERROR_CREATE_SESSION = 41001;
+}
