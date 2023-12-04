@@ -18,11 +18,12 @@ const (
 )
 
 type GoogleOauth struct {
-	AccessToken string    `json:"access_token"`
-	ExpiresIn   int64     `json:"expires_in"`
-	Scope       string    `json:"scope"`
-	TokenType   TokenType `json:"token_type"`
-	IDToken     string    `json:"id_token"`
+	AccessToken  string    `json:"access_token"`
+	RefreshToken string    `json:"refresh_token"`
+	ExpiresIn    int64     `json:"expires_in"`
+	Scope        string    `json:"scope"`
+	TokenType    TokenType `json:"token_type"`
+	IDToken      string    `json:"id_token"`
 }
 
 func GetGoogleOauthToken(code string, config oauth2.Config) (*GoogleOauth, error) {

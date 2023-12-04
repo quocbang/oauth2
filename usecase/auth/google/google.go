@@ -41,6 +41,8 @@ func (s *oauth2Service) formatUrl() string {
 	values.Add("response_type", "code")
 	values.Add("redirect_uri", s.config.RedirectURL)
 	values.Add("scope", "openid email profile")
+	values.Add("access_type", "offline")
+	values.Add("include_granted_scopes", "true")
 	return fmt.Sprintf("%s?%s", s.config.Endpoint.AuthURL, values.Encode())
 }
 
@@ -114,9 +116,9 @@ func (s *oauth2Service) Oauth2Login(ctx context.Context, code string) (*presente
 
 	// create a session
 	session := &models.Session{
-		ID:                   generateTokenReply.AccessTokenClaim.User.ID,
+		ID:                   generateTokenReply.AccessTokenClaim.SessionID,
 		RefreshToken:         generateTokenReply.RefreshToken,
-		ProviderRefreshToken: googleAuth.IDToken, // TODO: should fix orr find refresh token
+		ProviderRefreshToken: googleAuth.RefreshToken,
 		ClientIP:             middleware.GetClientIP(ctx),
 		ClientAgent:          middleware.GetClientAgent(ctx),
 		Expires:              generateTokenReply.RefreshTokenClaim.ExpiresAt.Time,
