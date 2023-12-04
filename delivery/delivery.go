@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/quocbang/oauth2/errors"
 )
 
 type response struct{}
@@ -18,12 +19,15 @@ func (response) Success(c echo.Context, data interface{}) error {
 	})
 }
 
-// func (response) Error(c echo.Context, err error) error {
-// 	var errMessage string
+func (response) Error(c echo.Context, err error) error {
+	serverErr, ok := err.(errors.Error)
+	if !ok {
+		return err // return origin error
+	}
 
-// 	return c.JSON(err.HTTPCode, map[string]interface{}{
-// 		"code":    err.ErrorCode,
-// 		"message": err.Message,
-// 		"info":    errMessage,
-// 	})
-// }
+	return c.JSON(serverErr.StatusCode, map[string]interface{}{
+		"code":    serverErr.ErrorCode,
+		"message": serverErr.Details,
+		"info":    serverErr.Raw.Error(),
+	})
+}

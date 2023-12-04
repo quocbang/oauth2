@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 
 	"github.com/quocbang/oauth2/config"
 	"github.com/quocbang/oauth2/delivery/middleware"
+	serverErr "github.com/quocbang/oauth2/errors"
 	"github.com/quocbang/oauth2/presenter"
 	"github.com/quocbang/oauth2/repository"
 	"github.com/quocbang/oauth2/repository/orm/models"
@@ -56,18 +58,27 @@ func (s *oauth2Service) GetAuthURL(ctx context.Context) (*presenter.GetAuthURLRe
 func (s *oauth2Service) Oauth2Login(ctx context.Context, code string) (*presenter.Oauth2LoginResponse, error) {
 	t, err := s.config.Exchange(ctx, code)
 	if err != nil {
-		return nil, err
+		return nil, serverErr.Error{
+			StatusCode: http.StatusInternalServerError,
+			ErrorCode:  serverErr.Code_ERROR_FAILED_TO_GET_OAUTH2_TOKEN,
+			Details:    "failed to get oauth2 token",
+			Raw:        err,
+		}
 	}
 
 	githubUserInfo, err := auth.GetGithubUserInfo(ctx, t)
 	if err != nil {
-		return nil, err
+		return nil, serverErr.Error{
+			StatusCode: http.StatusInternalServerError,
+			ErrorCode:  serverErr.Code_ERROR_GET_USER_INFO,
+			Details:    "failed to get user info",
+			Raw:        err,
+		}
 	}
 
 	// get our account
 	var account *models.Account
 	account, err = s.repo.Account().GetByProviderID(ctx, *provider.Provider_GOOGLE.Enum(), fmt.Sprintf("%d", githubUserInfo.ID))
-
 	if err != nil {
 		// create new user if not exist in database
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -81,21 +92,41 @@ func (s *oauth2Service) Oauth2Login(ctx context.Context, code string) (*presente
 			}
 			err := s.repo.Account().Create(ctx, account)
 			if err != nil {
-				return nil, err
+				return nil, serverErr.Error{
+					StatusCode: http.StatusInternalServerError,
+					ErrorCode:  serverErr.Code_ERROR_CREATE_ACCOUNT,
+					Details:    "failed to create account",
+					Raw:        err,
+				}
 			}
 		} else {
-			return nil, err
+			return nil, serverErr.Error{
+				StatusCode: http.StatusInternalServerError,
+				ErrorCode:  serverErr.Code_ERROR_GET_ACCOUNT,
+				Details:    "failed to set account",
+				Raw:        err,
+			}
 		}
 	}
 
 	// generate new our token
 	accessTokenDuration, err := time.ParseDuration(s.internalAuth.AccessTokenDuration)
 	if err != nil {
-		return nil, err // TODO: should return with custom error
+		return nil, serverErr.Error{
+			StatusCode: http.StatusInternalServerError,
+			ErrorCode:  serverErr.Code_ERROR_FAILED_TO_PARSE_DURATION,
+			Details:    "failed to parse access token duration",
+			Raw:        err,
+		}
 	}
 	refreshTokenDuration, err := time.ParseDuration(s.internalAuth.RefreshTokenDuration)
 	if err != nil {
-		return nil, err
+		return nil, serverErr.Error{
+			StatusCode: http.StatusInternalServerError,
+			ErrorCode:  serverErr.Code_ERROR_FAILED_TO_PARSE_DURATION,
+			Details:    "failed to parse refresh token duration",
+			Raw:        err,
+		}
 	}
 	jwt := &token.JWT{
 		SecretKey: s.internalAuth.SecretKey,
@@ -111,7 +142,12 @@ func (s *oauth2Service) Oauth2Login(ctx context.Context, code string) (*presente
 	}
 	generateTokenReply, err := jwt.GenerateToken()
 	if err != nil {
-		return nil, err
+		return nil, serverErr.Error{
+			StatusCode: http.StatusInternalServerError,
+			ErrorCode:  serverErr.Code_ERROR_FAILED_TO_GENERATE_TOKEN,
+			Details:    "failed to generate token",
+			Raw:        err,
+		}
 	}
 
 	// create a session
@@ -125,7 +161,12 @@ func (s *oauth2Service) Oauth2Login(ctx context.Context, code string) (*presente
 		CreatedBy:            account.ID,
 	}
 	if err := s.repo.Session().Create(ctx, session); err != nil {
-		return nil, err
+		return nil, serverErr.Error{
+			StatusCode: http.StatusInternalServerError,
+			ErrorCode:  serverErr.Code_ERROR_CREATE_SESSION,
+			Details:    "failed to create session",
+			Raw:        err,
+		}
 	}
 
 	return &presenter.Oauth2LoginResponse{

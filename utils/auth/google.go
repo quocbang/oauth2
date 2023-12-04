@@ -26,7 +26,7 @@ type GetGoogleUserInfoReply struct {
 	Locale        string `json:"locale"`
 }
 
-func GetUserInfo(ctx context.Context, t *oauth2.Token) (*GetGoogleUserInfoReply, error) {
+func GetGoogleUserInfo(ctx context.Context, t *oauth2.Token) (*GetGoogleUserInfoReply, error) {
 	if t.TokenType != string(Bearer) {
 		return nil, fmt.Errorf("expected is Bearer type")
 	}
