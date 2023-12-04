@@ -9,12 +9,12 @@ import (
 	"github.com/quocbang/oauth2/presenter"
 )
 
-func (h *Handlers) GoogleLogin(c echo.Context) error {
+func (h *Handlers) GetGoogleAuthURL(c echo.Context) error {
 	var (
 		ctx  = middleware.ToBuiltInContext(c)
-		resp *presenter.LoginResponse
+		resp *presenter.GetAuthURLResponse
 	)
-	resp, err := h.Usecase.Auth().Google().Login(ctx)
+	resp, err := h.Usecase.Auth().Google().GetAuthURL(ctx)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
@@ -24,9 +24,9 @@ func (h *Handlers) GoogleLogin(c echo.Context) error {
 func (h *Handlers) GetGithubAuthURL(c echo.Context) error {
 	var (
 		ctx  = middleware.ToBuiltInContext(c)
-		resp *presenter.LoginResponse
+		resp *presenter.GetAuthURLResponse
 	)
-	resp, err := h.Usecase.Auth().Github().Login(ctx)
+	resp, err := h.Usecase.Auth().Github().GetAuthURL(ctx)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}

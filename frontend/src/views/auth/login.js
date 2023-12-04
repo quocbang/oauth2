@@ -7,7 +7,7 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 
 export default function Login() {
   const handleGoogleLogin = () => {
-    fetch('http://localhost:3000/api/auth/google/login')
+    fetch('http://localhost:3000/api/auth/google/auth')
         .then(response => response.json())
         .then(data => {
           if (data.code === 200) {

@@ -46,8 +46,8 @@ func (s *oauth2Service) formatUrl() string {
 	return fmt.Sprintf("%s?%s", s.config.Endpoint.AuthURL, values.Encode())
 }
 
-func (s *oauth2Service) Login(ctx context.Context) (*presenter.LoginResponse, error) {
-	return &presenter.LoginResponse{
+func (s *oauth2Service) GetAuthURL(ctx context.Context) (*presenter.GetAuthURLResponse, error) {
+	return &presenter.GetAuthURLResponse{
 		Url: s.formatUrl(),
 	}, nil
 }
