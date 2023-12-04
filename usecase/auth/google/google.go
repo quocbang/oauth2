@@ -54,13 +54,14 @@ func (s *oauth2Service) Login(ctx context.Context) (*presenter.LoginResponse, er
 
 func (s *oauth2Service) Oauth2Login(ctx context.Context, code string) (*presenter.Oauth2LoginResponse, error) {
 	// get google token
-	googleAuth, err := auth.GetGoogleOauthToken(code, s.config)
+	googleAuth, err := s.config.Exchange(ctx, code)
 	if err != nil {
 		return nil, err
 	}
 
 	// get user info with token
-	googleUserInfo, err := googleAuth.GetGoogleUserInfo()
+	googleUserInfo, err := auth.GetUserInfo(ctx, googleAuth)
+	// googleAuth.GetGoogleUserInfo()
 	if err != nil {
 		return nil, err
 	}
