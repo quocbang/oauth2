@@ -1,0 +1,22 @@
+dev_mode: false
+oauth2: 
+  google:
+    client_id: your_client_id # see details: https://console.developers.google.com/apis/credentials
+    client_secret: your_client_secret
+    call_back_url: your_call_back_url
+  github:
+    client_id: your_client_id # see details: https://github.com/settings/applications/new
+    client_secret: your_client_secret
+    call_back_url: your_call_back_url
+database:
+  postgres:
+    address: localhost
+    port: 5432
+    name: your_database_name
+    username: quocbang
+    password: your_password
+internal_auth:
+  secret_key: your_secret_key
+  access_token_duration: 900s # second => 15 min
+  refresh_token_duration: 604800s # second => 1 week
+migrate_path: file://./migration
