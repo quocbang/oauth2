@@ -51,8 +51,9 @@ func GetUserInfo(ctx context.Context, t *oauth2.Token) (*GetGoogleUserInfoReply,
 	if resp.StatusCode/100 != 2 {
 		errResponse, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return nil, fmt.Errorf("failed to read google user info during error, status_code: %d error: %v", resp.StatusCode, string(errResponse))
+			return nil, fmt.Errorf("failed to read google user info during error, error: %v", err)
 		}
+		return nil, fmt.Errorf("response with failed, status_code: %d details: %v", resp.StatusCode, string(errResponse))
 	}
 
 	var googleUserInfo *GetGoogleUserInfoReply

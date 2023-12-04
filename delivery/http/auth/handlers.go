@@ -17,4 +17,8 @@ func NewAuthHandler(e *echo.Group, usecase *usecase.UseCase) {
 	// google
 	e.GET("/google/login", handlers.GoogleLogin)
 	e.GET("/google/callback", handlers.Callback)
+
+	// github
+	e.GET("/github/auth", handlers.GetGithubAuthURL)
+	e.GET("/github/callback", handlers.GithubCallback)
 }

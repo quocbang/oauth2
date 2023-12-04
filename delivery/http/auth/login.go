@@ -20,3 +20,15 @@ func (h *Handlers) GoogleLogin(c echo.Context) error {
 	}
 	return delivery.Response.Success(c, resp)
 }
+
+func (h *Handlers) GetGithubAuthURL(c echo.Context) error {
+	var (
+		ctx  = middleware.ToBuiltInContext(c)
+		resp *presenter.LoginResponse
+	)
+	resp, err := h.Usecase.Auth().Github().Login(ctx)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+	return delivery.Response.Success(c, resp)
+}

@@ -32,3 +32,26 @@ func (h *Handlers) Callback(c echo.Context) error {
 
 	return delivery.Response.Success(c, resp)
 }
+
+func (h *Handlers) GithubCallback(c echo.Context) error {
+	var (
+		ctx  = middleware.ToBuiltInContext(c)
+		req  = payload.CallbackRequest{}
+		resp *presenter.Oauth2LoginResponse
+	)
+
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	if err := req.Validate(); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	resp, err := h.Usecase.Auth().Github().Oauth2Login(ctx, req.Code)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+
+	return delivery.Response.Success(c, resp)
+}
