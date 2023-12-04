@@ -7,6 +7,6 @@ import (
 )
 
 type IOAuth2 interface {
-	Login(context.Context) (*presenter.LoginResponse, error)
+	GetAuthURL(context.Context) (*presenter.GetAuthURLResponse, error)
 	Oauth2Login(ctx context.Context, code string) (*presenter.Oauth2LoginResponse, error)
 }

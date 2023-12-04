@@ -12,6 +12,6 @@ type Oauth2LoginResponse struct {
 	TokenExpires time.Time `json:"token_expires"`
 }
 
-type LoginResponse struct {
+type GetAuthURLResponse struct {
 	Url string
 }

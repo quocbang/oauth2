@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 type Session struct {
@@ -20,9 +19,4 @@ type Session struct {
 
 func (Session) TableName() string {
 	return "session"
-}
-
-func (s *Session) BeforeCreate(*gorm.DB) error {
-	s.ID = uuid.New()
-	return nil
 }

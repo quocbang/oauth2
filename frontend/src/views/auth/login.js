@@ -7,7 +7,17 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 
 export default function Login() {
   const handleGoogleLogin = () => {
-    fetch('http://localhost:3000/api/auth/google/login')
+    fetch('http://localhost:3000/api/auth/google/auth')
+        .then(response => response.json())
+        .then(data => {
+          if (data.code === 200) {
+            console.log(data.data)
+            window.location.replace(data.data.Url);
+          }
+        })
+  }
+  const handleGetGithubAuthURL = () => {
+    fetch('http://localhost:3000/api/auth/github/auth')
         .then(response => response.json())
         .then(data => {
           if (data.code === 200) {
@@ -39,7 +49,7 @@ export default function Login() {
               </div> 
               <div style={{paddingTop: '20px'}}>
                 <Button onClick={handleGoogleLogin}><GoogleIcon></GoogleIcon></Button>
-                <Button><GitHubIcon></GitHubIcon></Button>
+                <Button onClick={handleGetGithubAuthURL}><GitHubIcon></GitHubIcon></Button>
               </div>
             </div>
           </FormControl>

@@ -1,4 +1,4 @@
-package google
+package github
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/google/uuid"
 	"golang.org/x/oauth2"
 	"gorm.io/gorm"
 
@@ -27,7 +28,7 @@ type oauth2Service struct {
 	internalAuth config.InternalAuthInfo
 }
 
-func NewGoogleOauth2(config oauth2.Config, repo repository.Repositories, internalAuth config.InternalAuthInfo) service.IOAuth2 {
+func NewGithubOauth2Service(config oauth2.Config, repo repository.Repositories, internalAuth config.InternalAuthInfo) service.IOAuth2 {
 	return &oauth2Service{
 		repo:         repo,
 		config:       config,
@@ -35,50 +36,48 @@ func NewGoogleOauth2(config oauth2.Config, repo repository.Repositories, interna
 	}
 }
 
-func (s *oauth2Service) formatUrl() string {
+func (s *oauth2Service) getURL() string {
 	values := url.Values{}
 	values.Add("client_id", s.config.ClientID)
-	values.Add("response_type", "code")
 	values.Add("redirect_uri", s.config.RedirectURL)
-	values.Add("scope", "openid email profile")
-	values.Add("access_type", "offline")
-	values.Add("include_granted_scopes", "true")
-	return fmt.Sprintf("%s?%s", s.config.Endpoint.AuthURL, values.Encode())
+	values.Add("scope", "user")
+	values.Add("state", uuid.New().String())
+	values.Add("allow_signup", "true")
+	query := values.Encode()
+	return fmt.Sprintf("%s?%s", s.config.Endpoint.AuthURL, query)
 }
 
 func (s *oauth2Service) GetAuthURL(ctx context.Context) (*presenter.GetAuthURLResponse, error) {
 	return &presenter.GetAuthURLResponse{
-		Url: s.formatUrl(),
+		Url: s.getURL(),
 	}, nil
 }
 
 func (s *oauth2Service) Oauth2Login(ctx context.Context, code string) (*presenter.Oauth2LoginResponse, error) {
-	// get google token
-	googleAuth, err := s.config.Exchange(ctx, code)
+	t, err := s.config.Exchange(ctx, code)
 	if err != nil {
 		return nil, err
 	}
 
-	// get user info with token
-	googleUserInfo, err := auth.GetUserInfo(ctx, googleAuth)
-	// googleAuth.GetGoogleUserInfo()
+	githubUserInfo, err := auth.GetGithubUserInfo(ctx, t)
 	if err != nil {
 		return nil, err
 	}
 
 	// get our account
 	var account *models.Account
-	account, err = s.repo.Account().GetByProviderID(ctx, *provider.Provider_GOOGLE.Enum(), googleUserInfo.ID)
+	account, err = s.repo.Account().GetByProviderID(ctx, *provider.Provider_GOOGLE.Enum(), fmt.Sprintf("%d", githubUserInfo.ID))
+
 	if err != nil {
 		// create new user if not exist in database
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// create new account
 			account = &models.Account{
-				Name:           googleUserInfo.Name,
-				Email:          googleUserInfo.Email,
-				Provider:       provider.Provider_GOOGLE,
-				ProviderUserID: googleUserInfo.ID,
-				Image:          googleUserInfo.Picture,
+				Name:           githubUserInfo.Name,
+				Email:          "",
+				Provider:       provider.Provider_GITHUB,
+				ProviderUserID: fmt.Sprintf("%d", githubUserInfo.ID),
+				Image:          githubUserInfo.AvatarURL,
 			}
 			err := s.repo.Account().Create(ctx, account)
 			if err != nil {
@@ -119,7 +118,7 @@ func (s *oauth2Service) Oauth2Login(ctx context.Context, code string) (*presente
 	session := &models.Session{
 		ID:                   generateTokenReply.AccessTokenClaim.SessionID,
 		RefreshToken:         generateTokenReply.RefreshToken,
-		ProviderRefreshToken: googleAuth.RefreshToken,
+		ProviderRefreshToken: t.RefreshToken,
 		ClientIP:             middleware.GetClientIP(ctx),
 		ClientAgent:          middleware.GetClientAgent(ctx),
 		Expires:              generateTokenReply.RefreshTokenClaim.ExpiresAt.Time,
@@ -129,7 +128,6 @@ func (s *oauth2Service) Oauth2Login(ctx context.Context, code string) (*presente
 		return nil, err
 	}
 
-	// response our server token
 	return &presenter.Oauth2LoginResponse{
 		SessionID:    generateTokenReply.AccessTokenClaim.SessionID,
 		AccessToken:  generateTokenReply.AccessToken,

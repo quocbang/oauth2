@@ -1,12 +1,11 @@
 package auth
 
 import (
-	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 
 	"golang.org/x/oauth2"
 )
@@ -17,52 +16,7 @@ const (
 	Bearer TokenType = "Bearer"
 )
 
-type GoogleOauth struct {
-	AccessToken string    `json:"access_token"`
-	ExpiresIn   int64     `json:"expires_in"`
-	Scope       string    `json:"scope"`
-	TokenType   TokenType `json:"token_type"`
-	IDToken     string    `json:"id_token"`
-}
-
-func GetGoogleOauthToken(code string, config oauth2.Config) (*GoogleOauth, error) {
-	values := url.Values{}
-	values.Add("grant_type", "authorization_code")
-	values.Add("code", code)
-	values.Add("client_id", config.ClientID)
-	values.Add("client_secret", config.ClientSecret)
-	values.Add("redirect_uri", config.RedirectURL)
-	query := values.Encode()
-
-	req, err := http.NewRequest(http.MethodPost, config.Endpoint.TokenURL, bytes.NewBufferString(query))
-	if err != nil {
-		return nil, err // TODO: should custom err
-	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, err // TODO: should custom err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode/100 != 2 {
-		responseErr, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return nil, err // TODO: should custom err
-		}
-		return nil, fmt.Errorf("failed to get google token, error: %v", string(responseErr))
-	}
-
-	googleResponse := &GoogleOauth{}
-	if err := json.NewDecoder(resp.Body).Decode(&googleResponse); err != nil {
-		return nil, err // TODO: should custom err
-	}
-
-	return googleResponse, nil
-}
-
-type GoogleUserReply struct {
+type GetGoogleUserInfoReply struct {
 	ID            string `json:"ID"`
 	Email         string `json:"email"`
 	VerifiedEmail bool   `json:"verified_email"`
@@ -72,17 +26,21 @@ type GoogleUserReply struct {
 	Locale        string `json:"locale"`
 }
 
-func (g *GoogleOauth) GetGoogleUserInfo() (*GoogleUserReply, error) {
-	if g.TokenType != Bearer {
+func GetUserInfo(ctx context.Context, t *oauth2.Token) (*GetGoogleUserInfoReply, error) {
+	if t.TokenType != string(Bearer) {
 		return nil, fmt.Errorf("expected is Bearer type")
 	}
 
-	url := fmt.Sprintf("%s?access_token=%s&alt=json", "https://www.googleapis.com/oauth2/v1/userinfo", g.AccessToken)
+	url := fmt.Sprintf("%s?access_token=%s&alt=json", "https://www.googleapis.com/oauth2/v1/userinfo", t.AccessToken)
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new get user info request, error: %v", err)
 	}
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", g.IDToken))
+	idToken, ok := t.Extra("id_token").(string)
+	if !ok {
+		return nil, fmt.Errorf("can't find id token")
+	}
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", idToken))
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -93,11 +51,12 @@ func (g *GoogleOauth) GetGoogleUserInfo() (*GoogleUserReply, error) {
 	if resp.StatusCode/100 != 2 {
 		errResponse, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return nil, fmt.Errorf("failed to read google user info during error, status_code: %d error: %v", resp.StatusCode, string(errResponse))
+			return nil, fmt.Errorf("failed to read google user info during error, error: %v", err)
 		}
+		return nil, fmt.Errorf("response with failed, status_code: %d details: %v", resp.StatusCode, string(errResponse))
 	}
 
-	var googleUserInfo *GoogleUserReply
+	var googleUserInfo *GetGoogleUserInfoReply
 	if err := json.NewDecoder(resp.Body).Decode(&googleUserInfo); err != nil {
 		return nil, fmt.Errorf("failed to decode google user info response, error: %v", err)
 	}
