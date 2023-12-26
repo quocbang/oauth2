@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/google/uuid"
+
 	"github.com/quocbang/oauth2/repository/orm/models"
 	"github.com/quocbang/oauth2/utils/provider"
 )
@@ -15,6 +17,7 @@ type Repositories interface {
 	Transaction() error
 	Account() IAccount
 	Session() ISession
+	Notification() INotification
 }
 
 type IAccount interface {
@@ -24,4 +27,9 @@ type IAccount interface {
 
 type ISession interface {
 	Create(context.Context, *models.Session) error
+}
+
+type INotification interface {
+	Create(context.Context, models.Notifications) error
+	GetList(ctx context.Context, userID uuid.UUID) ([]models.Notifications, error)
 }

@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package notification;
+option go_package = "github.com/quocbang/oauth2/proto/notification";
+
+enum Kind {
+  UNSPECIFIED = 0;
+  POST = 1;
+}
