@@ -2,8 +2,10 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/labstack/echo/v4"
+	"github.com/quocbang/oauth2/utils/token"
 	"github.com/rs/xid"
 	"go.uber.org/zap"
 )
@@ -54,11 +56,12 @@ func GetLoggerFormContext(ctx context.Context) *zap.Logger {
 	return zap.L()
 }
 
-// WithBaseContextValues is set some base information to context builtin of Golang
-// contains:
-// - client ip
-// - client agent
-// - *zap.Logger
+// WithBaseContextValues is set some base information to context builtin of Golang.
+//
+//	contains:
+//	- client ip
+//	- client agent
+//	- *zap.Logger
 func WithBaseContextValues() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
@@ -73,4 +76,13 @@ func WithBaseContextValues() echo.MiddlewareFunc {
 			return next(c.Echo().NewContext(r.WithContext(ctx), c.Response()))
 		}
 	}
+}
+
+// GetUserPrinciple is get user principle in context that filled by authorization method.
+func GetUserPrinciple(ctx context.Context) (*token.JWTClaimCustom, error) {
+	claim, ok := ctx.Value(AuthorizationKey).(*token.JWTClaimCustom)
+	if !ok {
+		return nil, fmt.Errorf("missing user principle")
+	}
+	return claim, nil
 }
