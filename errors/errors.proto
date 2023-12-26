@@ -1,5 +1,6 @@
 syntax = "proto3";
 
+package errors;
 option go_package = "github.com/quocbang/oauth2/errors";
 
 enum Code {
@@ -13,6 +14,8 @@ enum Code {
   ERROR_FAILED_TO_GET_OAUTH2_TOKEN = 21003;
   ERROR_FAILED_TO_GET_OAUTH2_USER_INFO = 21004;
   ERROR_BAD_REQUEST = 21005;
+  ERROR_MISSING_TOKEN = 21006;
+  ERROR_VERIFY_TOKEN_FAILED = 21007;
 
   // Account Service
   ERROR_GET_ACCOUNT = 31001;
