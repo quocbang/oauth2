@@ -5,7 +5,6 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/quocbang/oauth2/delivery"
-	"github.com/quocbang/oauth2/delivery/middleware"
 	"github.com/quocbang/oauth2/errors"
 	"github.com/quocbang/oauth2/payload"
 	"github.com/quocbang/oauth2/presenter"
@@ -13,7 +12,7 @@ import (
 
 func (h *Handlers) GoogleCallback(c echo.Context) error {
 	var (
-		ctx  = middleware.ToBuiltInContext(c)
+		ctx  = c.Request().Context()
 		req  = payload.CallbackRequest{}
 		resp *presenter.Oauth2LoginResponse
 	)
@@ -46,7 +45,7 @@ func (h *Handlers) GoogleCallback(c echo.Context) error {
 
 func (h *Handlers) GithubCallback(c echo.Context) error {
 	var (
-		ctx  = middleware.ToBuiltInContext(c)
+		ctx  = c.Request().Context()
 		req  = payload.CallbackRequest{}
 		resp *presenter.Oauth2LoginResponse
 	)
