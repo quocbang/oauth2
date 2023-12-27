@@ -3,13 +3,12 @@ package auth
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/quocbang/oauth2/delivery"
-	"github.com/quocbang/oauth2/delivery/middleware"
 	"github.com/quocbang/oauth2/presenter"
 )
 
 func (h *Handlers) GetGoogleAuthURL(c echo.Context) error {
 	var (
-		ctx  = middleware.ToBuiltInContext(c)
+		ctx  = c.Request().Context()
 		resp *presenter.GetAuthURLResponse
 	)
 	resp, err := h.Usecase.Auth().Google().GetAuthURL(ctx)
@@ -21,7 +20,7 @@ func (h *Handlers) GetGoogleAuthURL(c echo.Context) error {
 
 func (h *Handlers) GetGithubAuthURL(c echo.Context) error {
 	var (
-		ctx  = middleware.ToBuiltInContext(c)
+		ctx  = c.Request().Context()
 		resp *presenter.GetAuthURLResponse
 	)
 	resp, err := h.Usecase.Auth().Github().GetAuthURL(ctx)

@@ -28,6 +28,7 @@ func Run() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
+	e.Use(myMiddleware.WithBaseContextValues())
 
 	// register router
 	// "https://www.googleapis.com/auth/userinfo.email"
