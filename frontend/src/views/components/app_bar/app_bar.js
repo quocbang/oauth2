@@ -13,6 +13,9 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import DirectionsBoatFilledTwoToneIcon from '@mui/icons-material/DirectionsBoatFilledTwoTone';
 import { Outlet } from 'react-router-dom';
+import { Badge } from '@mui/material';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import useWebSocket from 'react-use-websocket';
 
 const pages = ['Products', 'Pricing', 'Blog'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
@@ -49,6 +52,23 @@ function TopAppBar() {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
+  const [ badgeContent, setBadgeContent ] = React.useState(0)
+
+  document.cookie = 'x-server-auth-key=' + accessToken + '; path=/';
+
+  const [messageHistory, setMessageHistory] = React.useState([]);
+  const { sendMessage, lastMessage, readyState, getWebSocket } = useWebSocket(
+    'ws://localhost:3333/v1/notification',
+    { share: true, "x-server-auth-key": "abc"}
+  );
+  
+  React.useEffect(() => {
+    if (lastMessage !== null) {
+      setMessageHistory((prev) => prev.concat(lastMessage));
+      setBadgeContent(badgeContent+1)
+    }
+  }, [lastMessage, setMessageHistory]);
 
   return (
     <div>
@@ -139,6 +159,18 @@ function TopAppBar() {
                   {page}
                 </Button>
               ))}
+            </Box>
+
+            <Box sx={{ display: { xs: 'none', md: 'flex', mr: 5 } }}>
+              <IconButton
+                size="large"
+                aria-label="show 17 new notifications"
+                color="inherit"
+              >
+                <Badge badgeContent={badgeContent} color="error">
+                  <NotificationsIcon />
+                </Badge>
+              </IconButton>
             </Box>
   
             <Box sx={{ flexGrow: 0 }}>

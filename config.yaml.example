@@ -20,3 +20,6 @@ internal_auth:
   access_token_duration: 900s # second => 15 min
   refresh_token_duration: 604800s # second => 1 week
 migrate_path: file://./migration
+websocket:
+  host: localhost
+  port: 3333

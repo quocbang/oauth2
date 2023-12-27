@@ -27,3 +27,8 @@ type Notifications struct {
 func (Notifications) TableName() string {
 	return "notifications"
 }
+
+// IsSendAll return true if Receiver == nil
+func (n *Notifications) IsSendAll() bool {
+	return n.Receiver == nil
+}
