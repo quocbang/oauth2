@@ -1,4 +1,4 @@
-CREATE TABLE session (
+CREATE TABLE IF NOT EXISTS session (
 	"id" uuid NOT NULL PRIMARY KEY, 
 	"refresh_token" text NOT NULL, 
 	"provider_refresh_token" text NOT NULL, 

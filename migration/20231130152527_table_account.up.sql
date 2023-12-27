@@ -1,4 +1,4 @@
-CREATE TABLE account (
+CREATE TABLE IF NOT EXISTS account (
 	"id" uuid NOT NULL PRIMARY KEY, 
 	"name" text NOT NULL, 
 	"email" text NOT NULL, 
