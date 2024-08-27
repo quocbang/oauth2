@@ -36,11 +36,11 @@ func GetGoogleUserInfo(ctx context.Context, t *oauth2.Token) (*GetGoogleUserInfo
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new get user info request, error: %v", err)
 	}
-	idToken, ok := t.Extra("id_token").(string)
-	if !ok {
-		return nil, fmt.Errorf("can't find id token")
-	}
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", idToken))
+	// idToken, ok := t.Extra("id_token").(string)
+	// if !ok {
+	// 	return nil, fmt.Errorf("can't find id token")
+	// }
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", t.AccessToken))
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

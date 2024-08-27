@@ -19,7 +19,7 @@ export default function Callback() {
           localStorage.setItem('LOGIN_INFO', JSON.stringify(data.data))
 
           // TODO: redirect
-          window.location.replace("/admin/dashboard");
+          window.location.replace("/");
         }else {
           <Navigate to="/user/login" replace></Navigate>
         }
@@ -36,7 +36,7 @@ export default function Callback() {
           localStorage.setItem('LOGIN_INFO', JSON.stringify(data.data))
 
           // TODO: redirect
-          window.location.replace("/admin/dashboard");
+          window.location.replace("/");
         }else {
           <Navigate to="/user/login" replace></Navigate>
         }

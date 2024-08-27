@@ -4,10 +4,12 @@ import (
 	"database/sql"
 	"fmt"
 
+	"go.uber.org/zap"
+
 	"github.com/quocbang/oauth2/repository"
 	"github.com/quocbang/oauth2/repository/impl/account"
+	"github.com/quocbang/oauth2/repository/impl/notification"
 	"github.com/quocbang/oauth2/repository/impl/session"
-	"go.uber.org/zap"
 )
 
 func (d *dbConnection) Account() repository.IAccount {
@@ -16,6 +18,10 @@ func (d *dbConnection) Account() repository.IAccount {
 
 func (d *dbConnection) Session() repository.ISession {
 	return session.NewSessionService(d.db)
+}
+
+func (d *dbConnection) Notification() repository.INotification {
+	return notification.NewNotificationService(d.db)
 }
 
 func (d *dbConnection) Begin(opts ...*sql.TxOptions) repository.Repositories {

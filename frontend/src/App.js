@@ -19,6 +19,7 @@ function App() {
     children,
   }) => {
     const loginInfo = localStorage.getItem('LOGIN_INFO')
+    console.log(loginInfo)
     if (!loginInfo) {
       return <Navigate to={redirectPath} replace />;
     }
@@ -33,8 +34,8 @@ function App() {
         <Routes>
           <Route path="/user/login" element={<Login></Login>}></Route>
           <Route path="/auth/:providerID/callback" element={<Callback />} />
-          <Route path="/admin" element={<ProtectedRoute> <TopAppBar></TopAppBar> </ProtectedRoute>}>
-            <Route path="/admin/dashboard" element={<Dashboard></Dashboard>} />
+          <Route path="/" element={<ProtectedRoute> <TopAppBar></TopAppBar> </ProtectedRoute>}>
+            <Route path="/" element={<Dashboard></Dashboard>} />
           </Route>
           <Route path="*" element={<p>There's nothing here: 404!</p>} />
         </Routes>

@@ -38,6 +38,11 @@ type InternalAuthInfo struct {
 	RefreshTokenDuration string `yaml:"refresh_token_duration"`
 }
 
+type WebsocketConfig struct {
+	Host string `yaml:"host"`
+	Port int    `yaml:"port"`
+}
+
 var c Config
 
 type Config struct {
@@ -46,6 +51,7 @@ type Config struct {
 	InternalAuth InternalAuthInfo `yaml:"internal_auth"`
 	Database     DatabaseGroup    `yaml:"database"`
 	MigratePath  string           `yaml:"migrate_path"`
+	Websocket    WebsocketConfig  `yaml:"websocket"`
 }
 
 func init() {
