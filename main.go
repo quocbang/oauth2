@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"sync"
 
 	"github.com/quocbang/oauth2/cmd"
@@ -9,7 +10,10 @@ import (
 
 func main() {
 	// init logger
-	middleware.InitLogger(false)
+	err := middleware.InitLogger(false)
+	if err != nil {
+		log.Fatalf("failed to init logger, error: %v", err)
+	}
 
 	wg := sync.WaitGroup{}
 	wg.Add(2)

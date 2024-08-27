@@ -42,8 +42,10 @@ func (h *handlers) ReceiveNotification(w http.ResponseWriter, r *http.Request) {
 
 	conn, err := upgrade.Upgrade(w, r, nil)
 	if err != nil {
-		w.Write([]byte(`failed to upgrade`)) // TODO: should handle error
-		log.Println(err)
+		_, err := w.Write([]byte(`failed to upgrade`)) // TODO: should handle error
+		if err != nil {
+			log.Println(err)
+		}
 		return
 	}
 

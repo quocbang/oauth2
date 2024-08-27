@@ -1,0 +1,10 @@
+.PHONY: run db ui
+
+run:
+	go run . --config-path=config.yaml
+
+db:
+	docker-compose down && docker-compose up --build -d
+
+ui:
+	cd frontend && npm start
